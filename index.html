@@ -52,7 +52,9 @@
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="hero-title">
+      <section class="hero" aria-labelledby="hero-title" aria-roledescription="carousel">
+        <div class="hero-slides" aria-hidden="true"></div>
+        <div class="hero-shade" aria-hidden="true"></div>
         <div class="hero-copy">
           <p class="eyebrow"><span class="status-dot"></span> <span data-i18n="hero.eyebrow">DIPETIK DENGAN HATI, DIKIRIM DENGAN CINTA</span></p>
           <h1 id="hero-title"><span data-i18n="hero.titleFirst">Dari kebun,</span><br /><span data-i18n="hero.titleSecond">untuk hal</span> <em data-i18n="hero.titleEmphasis">indah.</em></h1>
@@ -65,18 +67,14 @@
             <span data-i18n="hero.note">Dirawat alami · Dipilih satu per satu</span>
           </div>
         </div>
-        <div class="hero-art">
-          <div class="hero-orbit orbit-one"></div>
-          <div class="hero-orbit orbit-two"></div>
-          <img
-            src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=85"
-            alt="Rangkaian bunga berwarna lembut"
-          data-i18n-alt="hero.imageAlt"
-          />
-          <div class="hero-caption"><span>01 / 04</span><span data-i18n="hero.caption">KEBUN YANG TENANG</span></div>
-          <div class="hero-sticker"><span data-i18n="hero.stickerMade">dibuat dengan</span><strong>♡</strong><span data-i18n="hero.stickerCare">sepenuh hati</span></div>
+        <div class="hero-controls" aria-label="Kontrol foto beranda">
+          <button class="hero-arrow" type="button" data-hero-previous aria-label="Foto sebelumnya">‹</button>
+          <button class="hero-arrow" type="button" data-hero-next aria-label="Foto berikutnya">›</button>
         </div>
-        <div class="hero-index" aria-hidden="true">01 — 04</div>
+        <div class="hero-dots" data-hero-dots>
+          <button class="hero-autoplay-toggle" type="button" data-hero-autoplay aria-label="Jeda pergantian foto" aria-pressed="false">Ⅱ</button>
+        </div>
+        <div class="hero-caption"><span data-hero-count>01 / 04</span><span data-i18n="hero.caption">KEBUN YANG TENANG</span></div>
       </section>
 
       <section class="ticker" aria-label="Keunggulan rahmanflower" data-i18n-aria="ticker.label">
@@ -230,6 +228,11 @@
           <h2 id="product-preview-title"></h2>
           <p class="product-preview-price" id="product-preview-price"></p>
           <p class="product-preview-description" id="product-preview-description"></p>
+          <dl class="product-preview-specs" id="product-preview-specs"></dl>
+          <section class="product-preview-details" id="product-preview-details-wrap" hidden>
+            <h3 data-i18n="product.details">Detail produk</h3>
+            <p id="product-preview-details"></p>
+          </section>
           <button class="checkout-button product-preview-add" id="product-preview-add" type="button">
             <span data-i18n="product.previewAdd">Tambah ke keranjang</span><span aria-hidden="true">＋</span>
           </button>

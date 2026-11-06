@@ -54,7 +54,7 @@
             </div>
             <div class="table-wrap">
               <table class="product-table">
-                <thead><tr><th>Foto</th><th>Nama Produk</th><th>Kategori</th><th>Harga</th><th>Badge</th><th>Aksi</th></tr></thead>
+                <thead><tr><th>Foto</th><th>Nama Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Badge</th><th>Aksi</th></tr></thead>
                 <tbody id="product-list"></tbody>
               </table>
             </div>
@@ -66,8 +66,16 @@
         </section>
 
         <section class="panel" id="hero-settings">
-          <div class="panel-heading"><div><p class="eyebrow">KONTEN ETALASE</p><h2>Konten beranda</h2><p class="panel-help">Atur teks utama dan caption yang terlihat pada bagian atas etalase.</p></div></div>
+          <div class="panel-heading"><div><p class="eyebrow">KONTEN ETALASE</p><h2>Konten beranda</h2><p class="panel-help">Atur teks utama dan hingga enam foto slider yang tampil bergantian di bagian atas etalase.</p></div></div>
           <div class="form-grid">
+            <div class="field-wide hero-image-settings">
+              <label for="hero-image-upload">Foto beranda</label>
+              <input id="hero-image-upload" type="file" accept="image/*" multiple />
+              <span class="upload-help">Pilih hingga enam foto sekaligus. Foto akan dikecilkan agar halaman tetap ringan. Foto RAW kamera perlu dikonversi ke JPG/PNG terlebih dahulu.</span>
+              <div id="hero-image-list" class="hero-image-list" aria-live="polite"></div>
+              <label for="hero-image-urls">URL foto (satu per baris)<textarea id="hero-image-urls" name="heroSlides" data-setting="hero.slides" rows="4" maxlength="2500000" placeholder="Satu URL foto HTTPS atau path relatif per baris"></textarea></label>
+              <span class="upload-help">Bisa memakai URL gambar atau unggah foto di atas. Maksimal enam foto; jika URL kosong, foto bawaan akan digunakan.</span>
+            </div>
             <label>Kalimat judul baris pertama<input name="heroTitleFirst" data-setting="hero.titleFirst" maxlength="80" /></label>
             <label>Kalimat judul baris kedua<input name="heroTitleSecond" data-setting="hero.titleSecond" maxlength="80" /></label>
             <label>Kata penekanan judul<input name="heroTitleEmphasis" data-setting="hero.titleEmphasis" maxlength="50" /></label>

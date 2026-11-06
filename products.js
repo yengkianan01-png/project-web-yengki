@@ -2,6 +2,14 @@
 // Gunakan nomor WhatsApp format internasional tanpa tanda + atau spasi.
 window.STORE_CONFIG = {
   name: "rahmanflower",
+  hero: {
+    slides: [
+      "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=2000&q=85",
+      "https://images.unsplash.com/photo-1494972308805-463bc619d34e?auto=format&fit=crop&w=2000&q=85",
+      "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=2000&q=85",
+      "https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=2000&q=85",
+    ].join("\n"),
+  },
   whatsappPhone: "6281234567890",
   // Isi alamat email dan detail pembayaran resmi sebelum dipublikasikan.
   email: "",

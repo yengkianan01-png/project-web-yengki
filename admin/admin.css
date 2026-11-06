@@ -154,6 +154,8 @@ body { background: var(--wash); color: var(--ink); }
 .category-badge, .tag-badge { display: inline-flex; min-height: 21px; align-items: center; padding: 0 9px; border-radius: 20px; background: #eaf1f6; color: #426d91; font-size: 10px; white-space: nowrap; }
 .tag-badge { background: #dce7ef; color: #365a76; }
 .price-cell { font-weight: 700; white-space: nowrap; }
+.stock-cell { font-weight: 600; white-space: nowrap; }
+.stock-empty { color: var(--red) !important; }
 .muted-cell { color: #a0a4ad !important; }
 .actions-cell { white-space: nowrap; }
 .table-action { min-height: 28px; margin: 2px; padding: 0 8px; border: 0; border-radius: 6px; font-size: 10px; font-weight: 700; }
@@ -170,6 +172,19 @@ body { background: var(--wash); color: var(--ink); }
 .panel { margin-top: 20px; padding: 22px; scroll-margin-top: 72px; }
 .panel-heading h2 { font-size: 18px; }
 .panel-help { font-size: 12px; line-height: 1.5; }
+.form-grid .upload-help { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.hero-image-settings > label:first-child { display: block; margin-bottom: 8px; color: var(--ink); font-size: 11px; font-weight: 700; }
+.hero-image-settings > input[type="file"] { width: 100%; padding: 10px; border: 1px dashed #b9c9d6; border-radius: 8px; background: #f7fafc; color: var(--ink); font: inherit; font-size: 11px; }
+.hero-image-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 10px; margin: 12px 0; }
+.hero-image-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: #f4f8fb; }
+.hero-image-card img { width: 100%; height: 82px; object-fit: cover; }
+.hero-image-card img[hidden] { display: none; }
+.hero-image-card > span { display: block; overflow: hidden; padding: 6px 8px; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.hero-image-actions { display: flex; gap: 4px; padding: 0 6px 6px; }
+.hero-image-actions button { min-width: 24px; min-height: 23px; padding: 2px 6px; border: 0; border-radius: 5px; background: #eaf1f6; color: #365a76; font: inherit; font-size: 9px; cursor: pointer; }
+.hero-image-actions button:disabled { opacity: .4; cursor: not-allowed; }
+.hero-image-actions .hero-image-remove { margin-left: auto; background: #fff0f0; color: #b33340; }
+.hero-image-settings textarea { width: 100%; }
 .save-bar { bottom: 12px; }
 .reset-section { margin: 22px 0; }
 

@@ -3,6 +3,9 @@
   const productList = document.querySelector("#product-list");
   const statusMessage = document.querySelector("#status-message");
   const importFile = document.querySelector("#import-file");
+  const heroImageUpload = document.querySelector("#hero-image-upload");
+  const heroImageList = document.querySelector("#hero-image-list");
+  const heroImageUrls = document.querySelector("#hero-image-urls");
   const sidebarLinks = [...document.querySelectorAll(".sidebar-link")];
   const searchInput = document.querySelector("#product-search");
   const categoryFilter = document.querySelector("#category-filter");
@@ -33,7 +36,77 @@
     form.querySelectorAll("[data-setting]").forEach((input) => {
       input.value = readPath(data.config, input.dataset.setting);
     });
+    renderHeroImages();
     renderProducts();
+  }
+
+  function readHeroImageUrls() {
+    return heroImageUrls.value.split(/\r?\n/).map((url) => url.trim()).filter(Boolean);
+  }
+
+  function heroImageUrlsForEditor() {
+    const urls = readHeroImageUrls();
+    if (urls.length) return urls;
+    const defaultSlides = window.STORE_CONFIG?.hero?.slides;
+    return typeof defaultSlides === "string"
+      ? defaultSlides.split(/\r?\n/).map((url) => url.trim()).filter(Boolean)
+      : [];
+  }
+
+  function renderHeroImages() {
+    heroImageList.replaceChildren();
+    const urls = heroImageUrlsForEditor();
+    urls.forEach((url, index) => {
+      const card = document.createElement("div");
+      card.className = "hero-image-card";
+
+      const image = document.createElement("img");
+      image.src = url;
+      image.alt = `Pratinjau foto beranda ${index + 1}`;
+      image.loading = "lazy";
+      image.addEventListener("error", () => {
+        image.hidden = true;
+      });
+
+      const caption = document.createElement("span");
+      caption.textContent = `Foto ${index + 1}`;
+
+      const actions = document.createElement("div");
+      actions.className = "hero-image-actions";
+
+      const moveButton = (direction, text, offset) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = text;
+        button.setAttribute("aria-label", `Pindahkan foto beranda ${index + 1} ke ${direction}`);
+        button.disabled = index + offset < 0 || index + offset >= urls.length;
+        button.addEventListener("click", () => {
+          const nextIndex = index + offset;
+          [urls[index], urls[nextIndex]] = [urls[nextIndex], urls[index]];
+          heroImageUrls.value = urls.join("\n");
+          renderHeroImages();
+        });
+        return button;
+      };
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "hero-image-remove";
+      removeButton.textContent = "Hapus";
+      removeButton.setAttribute("aria-label", `Hapus foto beranda ${index + 1}`);
+      removeButton.addEventListener("click", () => {
+        const nextUrls = heroImageUrlsForEditor();
+        nextUrls.splice(index, 1);
+        heroImageUrls.value = nextUrls.length ? nextUrls.join("\n") : "";
+        renderHeroImages();
+      });
+
+      actions.append(moveButton("kiri", "←", -1), moveButton("kanan", "→", 1), removeButton);
+      card.append(image, caption, actions);
+      heroImageList.append(card);
+    });
+
+    heroImageUpload.disabled = urls.length >= 6;
   }
 
   function addField(card, labelText, fieldName, value, options = {}) {
@@ -100,7 +173,7 @@
     if (!data.products.length) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
-      cell.colSpan = 6;
+      cell.colSpan = 7;
       cell.className = "empty-list";
       cell.textContent = "Belum ada produk. Tambahkan produk untuk mulai mengisi etalase.";
       row.append(cell);
@@ -112,7 +185,7 @@
       const row = document.createElement("tr");
       row.className = "product-row";
       row.dataset.category = product.category;
-      row.dataset.search = `${product.name} ${product.category} ${product.description} ${product.tag}`.toLocaleLowerCase();
+      row.dataset.search = `${product.name} ${product.category} ${product.description} ${product.details || ""} ${product.tag}`.toLocaleLowerCase();
 
       const photoCell = document.createElement("td");
       const thumbnail = document.createElement("img");
@@ -150,6 +223,16 @@
         maximumFractionDigits: 0,
       }).format(Number(product.price) || 0);
 
+      const stockCell = document.createElement("td");
+      stockCell.className = "stock-cell";
+      if (product.stock === null || product.stock === undefined || product.stock === "") {
+        stockCell.textContent = "Belum diatur";
+        stockCell.classList.add("muted-cell");
+      } else {
+        stockCell.textContent = Number(product.stock) === 0 ? "Habis" : String(product.stock);
+        if (Number(product.stock) === 0) stockCell.classList.add("stock-empty");
+      }
+
       const tagCell = document.createElement("td");
       if (product.tag) {
         const tagBadge = document.createElement("span");
@@ -182,13 +265,13 @@
         showStatus("Produk dihapus dari formulir. Tekan Simpan perubahan untuk menerapkan.");
       });
       actionsCell.append(editButton, removeButton);
-      row.append(photoCell, nameCell, categoryCell, priceCell, tagCell, actionsCell);
+      row.append(photoCell, nameCell, categoryCell, priceCell, stockCell, tagCell, actionsCell);
 
       const editorRow = document.createElement("tr");
       editorRow.className = "product-editor-row";
       editorRow.hidden = true;
       const editorCell = document.createElement("td");
-      editorCell.colSpan = 6;
+      editorCell.colSpan = 7;
       const card = document.createElement("article");
       card.className = "product-editor";
       const heading = document.createElement("div");
@@ -203,10 +286,16 @@
       addField(fields, "Nama produk", "name", product.name, { required: true });
       addField(fields, "Kategori", "category", product.category, { required: true });
       addField(fields, "Harga (rupiah)", "price", product.price, { type: "number", min: 0, step: "1", required: true });
+      addField(fields, "Stok (kosongkan jika belum diketahui)", "stock", product.stock ?? "", { type: "number", min: 0, step: "1" });
+      addField(fields, "Minimal pembelian (buah)", "minPurchase", product.minPurchase ?? 1, { type: "number", min: 1, step: "1", required: true });
+      addField(fields, "Satuan minimal pembelian", "minPurchaseUnit", product.minPurchaseUnit ?? "buah", {});
+      addField(fields, "Kondisi barang", "condition", product.condition ?? "Baru", {});
+      addField(fields, "Berat satuan (contoh: 300 g)", "unitWeight", product.unitWeight ?? "", {});
       addField(fields, "URL gambar", "image", product.image, { required: true, wide: true });
       addImageUpload(fields, product);
       addField(fields, "Label (opsional)", "tag", product.tag, {});
       addField(fields, "Deskripsi", "description", product.description, { multiline: true, wide: true, required: true });
+      addField(fields, "Detail produk", "details", product.details ?? "", { multiline: true, wide: true });
       card.append(fields);
       editorCell.append(card);
       editorRow.append(editorCell);
@@ -231,7 +320,10 @@
     return [...productList.querySelectorAll(".product-editor")].map((card) => {
       const product = {};
       card.querySelectorAll("[data-product-field]").forEach((input) => {
-        product[input.dataset.productField] = input.dataset.productField === "price" ? Number(input.value) : input.value.trim();
+        const field = input.dataset.productField;
+        if (field === "price" || field === "minPurchase") product[field] = Number(input.value);
+        else if (field === "stock") product[field] = input.value.trim() === "" ? null : Number(input.value);
+        else product[field] = input.value.trim();
       });
       return product;
     });
@@ -247,13 +339,13 @@
     return config;
   }
 
-  function optimizeImage(file) {
+  function optimizeImage(file, options = {}) {
     if (file.size > 25 * 1024 * 1024) {
       throw new Error("Ukuran file maksimal 25 MB.");
     }
 
     return createImageBitmap(file).then((bitmap) => {
-      const maxDimension = 1200;
+      const maxDimension = options.maxDimension || 1200;
       const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -275,7 +367,7 @@
             reject(new Error("Foto tidak dapat dikonversi. Coba file JPG atau PNG."));
             return;
           }
-          if (blob.size > 700 * 1024) {
+          if (blob.size > (options.maxBytes || 700 * 1024)) {
             reject(new Error("Foto terlalu besar setelah dioptimalkan. Pilih foto yang lebih kecil."));
             return;
           }
@@ -287,6 +379,39 @@
       });
     });
   }
+
+  heroImageUrls.addEventListener("input", renderHeroImages);
+  heroImageUpload.addEventListener("change", async () => {
+    const files = [...heroImageUpload.files];
+    if (!files.length) return;
+
+    const currentUrls = heroImageUrlsForEditor();
+    if (files.length + currentUrls.length > 6) {
+      showStatus("Maksimal enam foto beranda. Hapus foto yang ada atau pilih lebih sedikit foto.", true);
+      heroImageUpload.value = "";
+      return;
+    }
+
+    heroImageUpload.disabled = true;
+    try {
+      const uploadedUrls = [];
+      for (const file of files) {
+        uploadedUrls.push(await optimizeImage(file, { maxDimension: 1000, maxBytes: 300 * 1024 }));
+      }
+      heroImageUrls.value = [...currentUrls, ...uploadedUrls].join("\n");
+      renderHeroImages();
+      showStatus(`${uploadedUrls.length} foto beranda siap digunakan. Simpan perubahan untuk menerapkannya.`);
+    } catch (error) {
+      showStatus(
+        `${error.message || "Foto tidak dapat diproses."} Foto RAW kamera perlu dikonversi ke JPG atau PNG terlebih dahulu.`,
+        true,
+      );
+    } finally {
+      heroImageUpload.disabled = false;
+      heroImageUpload.value = "";
+      renderHeroImages();
+    }
+  });
 
   productList.addEventListener("change", async (event) => {
     const input = event.target.closest("[data-image-upload]");
@@ -357,6 +482,12 @@
       category: "Bunga",
       description: "",
       price: 0,
+      stock: null,
+      minPurchase: 1,
+      minPurchaseUnit: "buah",
+      condition: "Baru",
+      unitWeight: "",
+      details: "",
       image: "",
       tag: "",
     });

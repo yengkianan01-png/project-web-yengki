@@ -11,7 +11,24 @@
   let toastTimer;
   let contactFallbackBound = false;
   const languageSelect = document.querySelector("#language-select");
+  const hero = document.querySelector(".hero");
+  const heroSlidesLayer = document.querySelector(".hero-slides");
+  const heroDots = document.querySelector("[data-hero-dots]");
+  const heroSlideCounter = document.querySelector("[data-hero-count]");
+  const heroPreviousButton = document.querySelector("[data-hero-previous]");
+  const heroNextButton = document.querySelector("[data-hero-next]");
+  const heroAutoplayToggle = document.querySelector("[data-hero-autoplay]");
+  const defaultHeroSlides = [
+    "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=2000&q=85",
+    "https://images.unsplash.com/photo-1494972308805-463bc619d34e?auto=format&fit=crop&w=2000&q=85",
+    "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=2000&q=85",
+    "https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=2000&q=85",
+  ];
   let currentLanguage = "id";
+  let activeHeroSlide = 0;
+  let heroAutoplayTimer;
+  let heroAutoplayPaused = false;
+  const heroReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const translations = {
     id: {
@@ -34,6 +51,7 @@
       "hero.eyebrow": "DIPETIK DENGAN HATI, DIKIRIM DENGAN CINTA", "hero.titleFirst": "Dari kebun,", "hero.titleSecond": "untuk hal", "hero.titleEmphasis": "indah.",
       "hero.description": "Kenali suasana kebun kami dan temukan pilihan bunga, termasuk bougenvil dalam pot, untuk mempercantik ruang dan momen istimewa.",
       "hero.cta": "Jelajahi koleksi", "hero.note": "Dirawat alami · Dipilih satu per satu",
+      "carousel.controls": "Kontrol foto beranda", "carousel.previous": "Foto sebelumnya", "carousel.next": "Foto berikutnya", "carousel.goTo": "Tampilkan foto {number}", "carousel.pause": "Jeda pergantian foto", "carousel.play": "Lanjutkan pergantian foto",
       "ticker.label": "Keunggulan rahmanflower", "ticker.fresh": "SEGAR SETIAP HARI", "ticker.grown": "DITUMBUHKAN DENGAN CINTA", "ticker.gifts": "HADIAH YANG BERKESAN",
       "catalog.eyebrow": "DIPILIH UNTUKMU", "catalog.title": "Temukan favoritmu", "catalog.intro": "Kebaikan dari kebun, untuk membuat setiap momen terasa lebih istimewa.",
       "catalog.filters": "Filter kategori", "catalog.search": "Cari produk...", "catalog.empty": "Belum ada produk yang cocok. Coba kata kunci lain, ya.",
@@ -65,7 +83,7 @@
       "checkout.message": "Halo {store}, saya ingin memesan:\n{items}\n\nAlamat tujuan: {address}\nKurir pilihan: {shipping}\nOngkir: dikonfirmasi admin\nPacking: {packing} — {packingCost}\nSubtotal produk: {subtotal}\nTotal sementara (belum termasuk ongkir): {total}\nMetode pembayaran pilihan: {payment}\n\nMohon konfirmasi ketersediaan, ongkir, total akhir, dan detail pembayaran sebelum saya membayar.",
       "checkout.inquiry": "Halo {store}, saya ingin bertanya tentang koleksi.", "category.all": "Semua", "category.flowers": "Bunga", "category.grapes": "Anggur",
       "tag.favorite": "FAVORIT", "tag.bestSeller": "BEST SELLER", "tag.potted": "TANAMAN POT", "tag.newHarvest": "PANEN BARU",
-      "product.add": "Tambah {name} ke keranjang", "product.previewAdd": "Tambah ke keranjang", "product.previewClose": "Tutup pratinjau produk", "product.previewOpen": "Lihat detail {name}", "product.decrease": "Kurangi {name}", "product.increase": "Tambah {name}",
+      "product.add": "Tambah {name} ke keranjang", "product.previewAdd": "Tambah ke keranjang", "product.previewClose": "Tutup pratinjau produk", "product.previewOpen": "Lihat detail {name}", "product.stock": "Stok", "product.stockUnknown": "Stok belum diatur", "product.soldOut": "Stok habis", "product.condition": "Kondisi", "product.weight": "Berat satuan", "product.minPurchase": "Minimal pembelian", "product.details": "Detail produk", "product.decrease": "Kurangi {name}", "product.increase": "Tambah {name}",
       "added": "{name} ditambahkan ke keranjang"
     },
     en: {
@@ -89,6 +107,7 @@
       "hero.eyebrow": "PICKED WITH CARE, DELIVERED WITH LOVE", "hero.titleFirst": "From our garden,", "hero.titleSecond": "for life's", "hero.titleEmphasis": "beautiful moments.",
       "hero.description": "Discover our garden and flowers, including potted bougainvillea, to brighten your space and special moments.",
       "hero.cta": "Explore collection", "hero.note": "Naturally cared for · Handpicked",
+      "carousel.controls": "Homepage photo controls", "carousel.previous": "Previous photo", "carousel.next": "Next photo", "carousel.goTo": "Show photo {number}", "carousel.pause": "Pause slideshow", "carousel.play": "Resume slideshow",
       "ticker.label": "Why rahmanflower", "ticker.fresh": "FRESH EVERY DAY", "ticker.grown": "GROWN WITH LOVE", "ticker.gifts": "GIFTS TO REMEMBER",
       "catalog.eyebrow": "PICKED FOR YOU", "catalog.title": "Find your favorite", "catalog.intro": "Garden-grown goodness to make every moment feel a little more special.",
       "catalog.filters": "Filter by category", "catalog.search": "Search products...", "catalog.empty": "No matching products. Try another search.",
@@ -120,7 +139,7 @@
       "checkout.message": "Hello {store}, I would like to place an order:\n{items}\n\nDestination address: {address}\nPreferred courier: {shipping}\nShipping: to be confirmed by admin\nPackaging: {packing} — {packingCost}\nProduct subtotal: {subtotal}\nProvisional total (shipping not included): {total}\nPreferred payment method: {payment}\n\nPlease confirm availability, shipping, final total, and payment details before I pay.",
       "checkout.inquiry": "Hello {store}, I have a question about your collection.", "category.all": "All", "category.flowers": "Flowers", "category.grapes": "Grapes",
       "tag.favorite": "FAVORITE", "tag.bestSeller": "BEST SELLER", "tag.potted": "POTTED PLANT", "tag.newHarvest": "NEW HARVEST",
-      "product.add": "Add {name} to cart", "product.previewAdd": "Add to cart", "product.previewClose": "Close product preview", "product.previewOpen": "View details for {name}", "product.decrease": "Decrease {name}", "product.increase": "Increase {name}",
+      "product.add": "Add {name} to cart", "product.previewAdd": "Add to cart", "product.previewClose": "Close product preview", "product.previewOpen": "View details for {name}", "product.stock": "Stock", "product.stockUnknown": "Stock not set", "product.soldOut": "Out of stock", "product.condition": "Condition", "product.weight": "Unit weight", "product.minPurchase": "Minimum purchase", "product.details": "Product details", "product.decrease": "Decrease {name}", "product.increase": "Increase {name}",
       "added": "{name} added to cart"
     },
     ar: {
@@ -144,6 +163,7 @@
       "hero.eyebrow": "نقطفها بعناية ونوصلها بمحبة", "hero.titleFirst": "من حديقتنا،", "hero.titleSecond": "لأجمل", "hero.titleEmphasis": "لحظاتك.",
       "hero.description": "اكتشف أجواء حديقتنا ونبات الجهنمية في أصص، إلى جانب الزهور التي تضفي جمالًا على منزلك ومناسباتك.",
       "hero.cta": "اكتشف المجموعة", "hero.note": "عناية طبيعية · اختيار يدوي",
+      "carousel.controls": "عناصر التحكم في صور الصفحة الرئيسية", "carousel.previous": "الصورة السابقة", "carousel.next": "الصورة التالية", "carousel.goTo": "اعرض الصورة {number}", "carousel.pause": "إيقاف عرض الصور مؤقتًا", "carousel.play": "متابعة عرض الصور",
       "ticker.label": "ما يميز rahmanflower", "ticker.fresh": "طازج كل يوم", "ticker.grown": "نزرعه بمحبة", "ticker.gifts": "هدايا لا تُنسى",
       "catalog.eyebrow": "اخترناها لك", "catalog.title": "اكتشف ما تحب", "catalog.intro": "خيرات الحديقة لتجعل كل لحظة أكثر تميزًا.",
       "catalog.filters": "تصفية حسب الفئة", "catalog.search": "ابحث عن المنتجات...", "catalog.empty": "لا توجد منتجات مطابقة. جرّب كلمة أخرى.",
@@ -175,7 +195,7 @@
       "checkout.message": "مرحبًا {store}، أود تقديم طلب:\n{items}\n\nعنوان التوصيل: {address}\nشركة الشحن المفضلة: {shipping}\nالشحن: يؤكده المسؤول\nالتغليف: {packing} — {packingCost}\nالمجموع الفرعي للمنتجات: {subtotal}\nالإجمالي المؤقت (لا يشمل الشحن): {total}\nطريقة الدفع المفضلة: {payment}\n\nيرجى تأكيد التوفر والشحن والإجمالي النهائي وبيانات الدفع قبل أن أدفع.",
       "checkout.inquiry": "مرحبًا {store}، لدي سؤال عن مجموعتكم.", "category.all": "الكل", "category.flowers": "زهور", "category.grapes": "عنب",
       "tag.favorite": "مفضل", "tag.bestSeller": "الأكثر مبيعًا", "tag.potted": "نبات في أصيص", "tag.newHarvest": "حصاد جديد",
-      "product.add": "أضف {name} إلى السلة", "product.previewAdd": "أضف إلى السلة", "product.previewClose": "أغلق معاينة المنتج", "product.previewOpen": "عرض تفاصيل {name}", "product.decrease": "قلل {name}", "product.increase": "أضف {name}",
+      "product.add": "أضف {name} إلى السلة", "product.previewAdd": "أضف إلى السلة", "product.previewClose": "أغلق معاينة المنتج", "product.previewOpen": "عرض تفاصيل {name}", "product.stock": "المخزون", "product.stockUnknown": "المخزون غير محدد", "product.soldOut": "نفد المخزون", "product.condition": "الحالة", "product.weight": "وزن الوحدة", "product.minPurchase": "الحد الأدنى للشراء", "product.details": "تفاصيل المنتج", "product.decrease": "قلل {name}", "product.increase": "أضف {name}",
       "added": "تمت إضافة {name} إلى السلة"
     }
   };
@@ -216,6 +236,10 @@
   const productPreviewTitle = document.querySelector("#product-preview-title");
   const productPreviewPrice = document.querySelector("#product-preview-price");
   const productPreviewDescription = document.querySelector("#product-preview-description");
+  const productPreviewSpecs = document.querySelector("#product-preview-specs");
+  const productPreviewDetailsWrap = document.querySelector("#product-preview-details-wrap");
+  const productPreviewDetails = document.querySelector("#product-preview-details");
+  const productPreviewAdd = document.querySelector("#product-preview-add");
   let previewProductId = "";
   let previewOpener = null;
   const cartOverlay = document.querySelector("#cart-overlay");
@@ -243,6 +267,130 @@
       /\{(\w+)\}/g,
       (match, name) => values[name] ?? match,
     );
+
+  function getHeroSlideUrls() {
+    const configuredSlides = config.hero?.slides;
+    const urls = Array.isArray(configuredSlides)
+      ? configuredSlides
+      : typeof configuredSlides === "string"
+        ? configuredSlides.split(/\r?\n/)
+        : [];
+    const validUrls = urls.map((url) => String(url).trim()).filter((url) => {
+      if (!url) return false;
+      if (url.startsWith("data:image/jpeg;base64,")) {
+        return url.length <= 420 * 1024 && /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(url);
+      }
+      try {
+        const parsedUrl = new URL(url, "https://rahmanflower.invalid/");
+        return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+      } catch {
+        return false;
+      }
+    });
+    return (validUrls.length ? validUrls : defaultHeroSlides).slice(0, 6);
+  }
+
+  function showHeroSlide(index) {
+    const slides = heroSlidesLayer.querySelectorAll(".hero-slide");
+    const dots = heroDots.querySelectorAll(".hero-dot");
+    if (!slides.length) return;
+    activeHeroSlide = (index + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("is-active", slideIndex === activeHeroSlide);
+    });
+    dots.forEach((dot, dotIndex) => {
+      dot.setAttribute("aria-pressed", String(dotIndex === activeHeroSlide));
+    });
+    heroSlideCounter.textContent = `${String(activeHeroSlide + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+  }
+
+  function updateHeroCarouselLabels() {
+    document.querySelector(".hero-controls").setAttribute("aria-label", t("carousel.controls"));
+    heroPreviousButton.setAttribute("aria-label", t("carousel.previous"));
+    heroNextButton.setAttribute("aria-label", t("carousel.next"));
+    heroAutoplayToggle.textContent = heroAutoplayPaused ? "▶" : "Ⅱ";
+    heroAutoplayToggle.setAttribute("aria-label", t(heroAutoplayPaused ? "carousel.play" : "carousel.pause"));
+    heroAutoplayToggle.title = t(heroAutoplayPaused ? "carousel.play" : "carousel.pause");
+    heroAutoplayToggle.setAttribute("aria-pressed", String(heroAutoplayPaused));
+    heroDots.querySelectorAll(".hero-dot").forEach((dot, index) => {
+      dot.setAttribute("aria-label", t("carousel.goTo", { number: index + 1 }));
+    });
+  }
+
+  function stopHeroAutoplay() {
+    window.clearInterval(heroAutoplayTimer);
+    heroAutoplayTimer = undefined;
+  }
+
+  function startHeroAutoplay() {
+    stopHeroAutoplay();
+    if (
+      heroSlidesLayer.children.length < 2 ||
+      heroReducedMotion.matches ||
+      heroAutoplayPaused ||
+      document.hidden ||
+      hero.matches(":hover") ||
+      hero.contains(document.activeElement)
+    ) return;
+    heroAutoplayTimer = window.setInterval(() => showHeroSlide(activeHeroSlide + 1), 5500);
+  }
+
+  function initializeHeroCarousel() {
+    const urls = getHeroSlideUrls();
+    heroSlidesLayer.replaceChildren();
+    heroDots.replaceChildren();
+    urls.forEach((url, index) => {
+      const image = document.createElement("img");
+      image.className = "hero-slide";
+      image.src = url;
+      image.alt = "";
+      image.decoding = "async";
+      image.loading = index === 0 ? "eager" : "lazy";
+      if (index === 0) image.fetchPriority = "high";
+      heroSlidesLayer.append(image);
+
+      const dot = document.createElement("button");
+      dot.className = "hero-dot";
+      dot.type = "button";
+      dot.addEventListener("click", () => {
+        showHeroSlide(index);
+        startHeroAutoplay();
+      });
+      heroDots.append(dot);
+    });
+    heroDots.append(heroAutoplayToggle);
+    document.querySelector(".hero-controls").hidden = urls.length < 2;
+    heroAutoplayToggle.hidden = urls.length < 2 || heroReducedMotion.matches;
+    heroDots.hidden = urls.length < 2;
+    showHeroSlide(0);
+    updateHeroCarouselLabels();
+
+    heroAutoplayToggle.addEventListener("click", () => {
+      heroAutoplayPaused = !heroAutoplayPaused;
+      updateHeroCarouselLabels();
+      startHeroAutoplay();
+    });
+    heroPreviousButton.addEventListener("click", () => {
+      showHeroSlide(activeHeroSlide - 1);
+      startHeroAutoplay();
+    });
+    heroNextButton.addEventListener("click", () => {
+      showHeroSlide(activeHeroSlide + 1);
+      startHeroAutoplay();
+    });
+    hero.addEventListener("mouseenter", stopHeroAutoplay);
+    hero.addEventListener("mouseleave", startHeroAutoplay);
+    hero.addEventListener("focusin", stopHeroAutoplay);
+    hero.addEventListener("focusout", (event) => {
+      if (!hero.contains(event.relatedTarget)) startHeroAutoplay();
+    });
+    document.addEventListener("visibilitychange", startHeroAutoplay);
+    heroReducedMotion.addEventListener("change", () => {
+      heroAutoplayToggle.hidden = heroReducedMotion.matches || urls.length < 2;
+      startHeroAutoplay();
+    });
+    startHeroAutoplay();
+  }
 
   function localizeProduct(product) {
     const translated = productTranslations[currentLanguage]?.[product.id];
@@ -419,6 +567,21 @@
     productPreviewTitle.textContent = product.name;
     productPreviewPrice.textContent = formatPrice(product.price);
     productPreviewDescription.textContent = product.description;
+    const stockIsSet = Number.isInteger(Number(rawProduct.stock)) && rawProduct.stock !== null && rawProduct.stock !== "";
+    const stock = stockIsSet ? Number(rawProduct.stock) : null;
+    const specs = [
+      [t("product.condition"), rawProduct.condition],
+      [t("product.weight"), rawProduct.unitWeight],
+      [t("product.minPurchase"), `${Math.max(1, Number(rawProduct.minPurchase) || 1)} ${rawProduct.minPurchaseUnit || "buah"}`],
+      [t("product.stock"), stockIsSet ? (stock === 0 ? t("product.soldOut") : String(stock)) : t("product.stockUnknown")],
+    ].filter(([, value]) => value);
+    productPreviewSpecs.innerHTML = specs
+      .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
+      .join("");
+    productPreviewDetailsWrap.hidden = !String(rawProduct.details || "").trim();
+    productPreviewDetails.textContent = rawProduct.details || "";
+    productPreviewAdd.disabled = stock === 0;
+    productPreviewAdd.querySelector("[data-i18n]").textContent = stock === 0 ? t("product.soldOut") : t("product.previewAdd");
     productPreviewTag.hidden = !product.tag;
     productPreviewTag.textContent = tagKeys[product.tag] ? t(tagKeys[product.tag]) : product.tag;
     productPreviewOverlay.hidden = false;
@@ -444,7 +607,7 @@
     const visibleProducts = products.filter((product) => {
       const matchesCategory = activeCategory === "Semua" || product.category === activeCategory;
       const localizedProduct = localizeProduct(product);
-      const matchesQuery = `${product.name} ${product.category} ${product.description} ${localizedProduct.name} ${localizedProduct.category} ${localizedProduct.description}`
+      const matchesQuery = `${product.name} ${product.category} ${product.description} ${product.details || ""} ${localizedProduct.name} ${localizedProduct.category} ${localizedProduct.description}`
         .toLocaleLowerCase()
         .includes(query);
       return matchesCategory && matchesQuery;
@@ -454,18 +617,23 @@
       .map((rawProduct, index) => {
         const product = localizeProduct(rawProduct);
         const tagKeys = { FAVORIT: "tag.favorite", "BEST SELLER": "tag.bestSeller", "TANAMAN POT": "tag.potted", "PANEN BARU": "tag.newHarvest" };
-        return `
+          const isOutOfStock = Number.isInteger(Number(rawProduct.stock)) && rawProduct.stock !== null && rawProduct.stock !== "" && Number(rawProduct.stock) === 0;
+          const stockLabel = rawProduct.stock === null || rawProduct.stock === undefined || rawProduct.stock === ""
+            ? ""
+            : `<p class="product-stock${isOutOfStock ? " out-of-stock" : ""}">${isOutOfStock ? t("product.soldOut") : `${escapeHtml(t("product.stock"))}: ${Number(rawProduct.stock)}`}</p>`;
+          return `
           <article class="product-card" style="--card-order:${index}" data-preview="${escapeHtml(rawProduct.id)}" tabindex="0" role="button" aria-label="${escapeHtml(t("product.previewOpen", { name: product.name }))}">
             <div class="product-image-wrap">
               <img class="product-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />
               ${product.tag ? `<span class="product-tag">${escapeHtml(tagKeys[product.tag] ? t(tagKeys[product.tag]) : product.tag)}</span>` : ""}
-              <button class="quick-add" type="button" data-add="${escapeHtml(product.id)}" aria-label="${escapeHtml(t("product.add", { name: product.name }))}">+</button>
+              <button class="quick-add" type="button" data-add="${escapeHtml(product.id)}" aria-label="${escapeHtml(t("product.add", { name: product.name }))}"${isOutOfStock ? " disabled" : ""}>+</button>
             </div>
             <div class="product-info">
               <div><p class="product-category">${escapeHtml(product.category)}</p><h3>${escapeHtml(product.name)}</h3></div>
               <p class="product-price">${formatPrice(product.price)}</p>
             </div>
             <p class="product-description">${escapeHtml(product.description)}</p>
+            ${stockLabel}
           </article>`;
       })
       .join("");
@@ -493,7 +661,7 @@
               <div class="quantity-control">
                 <button type="button" data-quantity="${escapeHtml(product.id)}" data-change="-1" aria-label="${escapeHtml(t("product.decrease", { name: localizeProduct(product).name }))}">−</button>
                 <span>${quantity}</span>
-                <button type="button" data-quantity="${escapeHtml(product.id)}" data-change="1" aria-label="${escapeHtml(t("product.increase", { name: localizeProduct(product).name }))}">+</button>
+                <button type="button" data-quantity="${escapeHtml(product.id)}" data-change="1" aria-label="${escapeHtml(t("product.increase", { name: localizeProduct(product).name }))}"${Number.isInteger(Number(product.stock)) && product.stock !== null && product.stock !== "" && quantity >= Number(product.stock) ? " disabled" : ""}>+</button>
               </div>
             </div>
             <strong class="cart-item-subtotal">${formatPrice(product.price * quantity)}</strong>
@@ -507,7 +675,19 @@
     const product = products.find((item) => item.id === productId);
     if (!product) return;
     const currentItem = cart.get(productId);
-    cart.set(productId, { product, quantity: (currentItem?.quantity || 0) + 1 });
+    const stockIsSet = Number.isInteger(Number(product.stock)) && product.stock !== null && product.stock !== "";
+    const stock = stockIsSet ? Number(product.stock) : null;
+    const minimum = Math.max(1, Number(product.minPurchase) || 1);
+    const nextQuantity = currentItem ? currentItem.quantity + 1 : minimum;
+    if (stock === 0) {
+      showToast(t("product.soldOut"));
+      return;
+    }
+    if (stock !== null && nextQuantity > stock) {
+      showToast(`${t("product.stock")}: ${stock}`);
+      return;
+    }
+    cart.set(productId, { product, quantity: nextQuantity });
     renderCart();
     showToast(t("added", { name: localizeProduct(product).name }));
   }
@@ -581,6 +761,7 @@
     });
     document.documentElement.lang = currentLanguage;
     document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+    updateHeroCarouselLabels();
     document.title = currentLanguage === "id"
       ? `${storeName} — Bunga & Anggur Pilihan`
       : currentLanguage === "en"
@@ -753,8 +934,13 @@
     const item = cart.get(productId);
     if (!item) return;
     const quantity = item.quantity + Number(button.dataset.change);
-    if (quantity <= 0) cart.delete(productId);
-    else cart.set(productId, { ...item, quantity });
+    const minimum = Math.max(1, Number(item.product.minPurchase) || 1);
+    const stockIsSet = Number.isInteger(Number(item.product.stock)) && item.product.stock !== null && item.product.stock !== "";
+    if (quantity < minimum) cart.delete(productId);
+    else if (stockIsSet && quantity > Number(item.product.stock)) {
+      showToast(`${t("product.stock")}: ${Number(item.product.stock)}`);
+      return;
+    } else cart.set(productId, { ...item, quantity });
     renderCart();
   });
 
@@ -834,5 +1020,6 @@
     }
   });
 
+  initializeHeroCarousel();
   applyLanguage();
 })();
