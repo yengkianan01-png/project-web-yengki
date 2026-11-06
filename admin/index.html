@@ -17,6 +17,7 @@
         <nav class="sidebar-nav" aria-label="Navigasi admin">
           <a class="sidebar-link" href="#overview"><span class="sidebar-icon" aria-hidden="true">◉</span>Dashboard</a>
           <a class="sidebar-link active" href="#products" aria-current="location"><span class="sidebar-icon" aria-hidden="true">▦</span>Produk</a>
+          <a class="sidebar-link" href="#hero-settings"><span class="sidebar-icon" aria-hidden="true">✦</span>Beranda</a>
           <a class="sidebar-link" href="#orders-info"><span class="sidebar-icon" aria-hidden="true">▣</span>Pesanan</a>
           <a class="sidebar-link" href="#store-settings"><span class="sidebar-icon" aria-hidden="true">⚙</span>Pengaturan</a>
         </nav>
@@ -64,10 +65,25 @@
           <div class="panel-heading"><div><p class="eyebrow">PESANAN</p><h2>Pesanan pelanggan</h2><p class="panel-help">Pesanan saat ini dikirim langsung ke WhatsApp dan belum tersimpan di panel admin.</p></div></div>
         </section>
 
+        <section class="panel" id="hero-settings">
+          <div class="panel-heading"><div><p class="eyebrow">KONTEN ETALASE</p><h2>Konten beranda</h2><p class="panel-help">Atur teks utama dan caption yang terlihat pada bagian atas etalase.</p></div></div>
+          <div class="form-grid">
+            <label>Kalimat judul baris pertama<input name="heroTitleFirst" data-setting="hero.titleFirst" maxlength="80" /></label>
+            <label>Kalimat judul baris kedua<input name="heroTitleSecond" data-setting="hero.titleSecond" maxlength="80" /></label>
+            <label>Kata penekanan judul<input name="heroTitleEmphasis" data-setting="hero.titleEmphasis" maxlength="50" /></label>
+            <label>Caption kecil di atas judul<input name="heroEyebrow" data-setting="hero.eyebrow" maxlength="100" /></label>
+            <label class="field-wide">Deskripsi beranda<textarea name="heroDescription" data-setting="hero.description" rows="3" maxlength="500"></textarea></label>
+            <label class="field-wide">Caption kecil di bawah tombol<textarea name="heroNote" data-setting="hero.note" rows="2" maxlength="160"></textarea></label>
+            <label class="field-wide">Caption pada foto utama<input name="heroImageCaption" data-setting="hero.caption" maxlength="100" /></label>
+          </div>
+        </section>
+
         <section class="panel" id="store-settings">
           <div class="panel-heading"><div><p class="eyebrow">IDENTITAS & KONTAK</p><h2>Pengaturan toko</h2></div></div>
           <div class="form-grid">
             <label>Nama toko<input name="name" data-setting="name" required maxlength="80" /></label>
+            <label class="field-wide">Bio toko (bagian “Cerita kami”)<textarea name="bio" data-setting="bio" rows="3" maxlength="500" placeholder="Ceritakan toko dan produk Anda..."></textarea></label>
+            <label class="field-wide">Caption beranda<textarea name="caption" data-setting="caption" rows="2" maxlength="200" placeholder="Tulis kalimat singkat yang tampil di bawah pengenalan utama..."></textarea></label>
             <label>WhatsApp (format internasional)<input name="whatsappPhone" data-setting="whatsappPhone" inputmode="tel" placeholder="6281234567890" /></label>
             <label>Email<input name="email" data-setting="email" type="email" /></label>
             <label class="field-wide">Alamat / lokasi toko<input name="mapLocation" data-setting="mapLocation" /></label>

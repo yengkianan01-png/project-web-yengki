@@ -217,6 +217,26 @@
       <span data-i18n="whatsapp.label">Chat kami</span>
     </a>
 
+    <div class="product-preview-overlay" id="product-preview-overlay" hidden>
+      <button class="product-preview-backdrop" id="close-product-preview-backdrop" type="button" aria-label="Tutup pratinjau produk"></button>
+      <section class="product-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="product-preview-title">
+        <button class="product-preview-close" id="close-product-preview" type="button" aria-label="Tutup pratinjau produk">×</button>
+        <div class="product-preview-image-wrap">
+          <img id="product-preview-image" alt="" />
+          <span class="product-tag" id="product-preview-tag" hidden></span>
+        </div>
+        <div class="product-preview-content">
+          <p class="product-category" id="product-preview-category"></p>
+          <h2 id="product-preview-title"></h2>
+          <p class="product-preview-price" id="product-preview-price"></p>
+          <p class="product-preview-description" id="product-preview-description"></p>
+          <button class="checkout-button product-preview-add" id="product-preview-add" type="button">
+            <span data-i18n="product.previewAdd">Tambah ke keranjang</span><span aria-hidden="true">＋</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
     <div class="cart-overlay" id="cart-overlay" hidden>
       <button class="overlay-backdrop" id="close-cart-backdrop" type="button" aria-label="Tutup keranjang" data-i18n-aria="cart.close"></button>
       <aside class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">

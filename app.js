@@ -65,7 +65,7 @@
       "checkout.message": "Halo {store}, saya ingin memesan:\n{items}\n\nAlamat tujuan: {address}\nKurir pilihan: {shipping}\nOngkir: dikonfirmasi admin\nPacking: {packing} — {packingCost}\nSubtotal produk: {subtotal}\nTotal sementara (belum termasuk ongkir): {total}\nMetode pembayaran pilihan: {payment}\n\nMohon konfirmasi ketersediaan, ongkir, total akhir, dan detail pembayaran sebelum saya membayar.",
       "checkout.inquiry": "Halo {store}, saya ingin bertanya tentang koleksi.", "category.all": "Semua", "category.flowers": "Bunga", "category.grapes": "Anggur",
       "tag.favorite": "FAVORIT", "tag.bestSeller": "BEST SELLER", "tag.potted": "TANAMAN POT", "tag.newHarvest": "PANEN BARU",
-      "product.add": "Tambah {name} ke keranjang", "product.decrease": "Kurangi {name}", "product.increase": "Tambah {name}",
+      "product.add": "Tambah {name} ke keranjang", "product.previewAdd": "Tambah ke keranjang", "product.previewClose": "Tutup pratinjau produk", "product.previewOpen": "Lihat detail {name}", "product.decrease": "Kurangi {name}", "product.increase": "Tambah {name}",
       "added": "{name} ditambahkan ke keranjang"
     },
     en: {
@@ -120,7 +120,7 @@
       "checkout.message": "Hello {store}, I would like to place an order:\n{items}\n\nDestination address: {address}\nPreferred courier: {shipping}\nShipping: to be confirmed by admin\nPackaging: {packing} — {packingCost}\nProduct subtotal: {subtotal}\nProvisional total (shipping not included): {total}\nPreferred payment method: {payment}\n\nPlease confirm availability, shipping, final total, and payment details before I pay.",
       "checkout.inquiry": "Hello {store}, I have a question about your collection.", "category.all": "All", "category.flowers": "Flowers", "category.grapes": "Grapes",
       "tag.favorite": "FAVORITE", "tag.bestSeller": "BEST SELLER", "tag.potted": "POTTED PLANT", "tag.newHarvest": "NEW HARVEST",
-      "product.add": "Add {name} to cart", "product.decrease": "Decrease {name}", "product.increase": "Increase {name}",
+      "product.add": "Add {name} to cart", "product.previewAdd": "Add to cart", "product.previewClose": "Close product preview", "product.previewOpen": "View details for {name}", "product.decrease": "Decrease {name}", "product.increase": "Increase {name}",
       "added": "{name} added to cart"
     },
     ar: {
@@ -175,7 +175,7 @@
       "checkout.message": "مرحبًا {store}، أود تقديم طلب:\n{items}\n\nعنوان التوصيل: {address}\nشركة الشحن المفضلة: {shipping}\nالشحن: يؤكده المسؤول\nالتغليف: {packing} — {packingCost}\nالمجموع الفرعي للمنتجات: {subtotal}\nالإجمالي المؤقت (لا يشمل الشحن): {total}\nطريقة الدفع المفضلة: {payment}\n\nيرجى تأكيد التوفر والشحن والإجمالي النهائي وبيانات الدفع قبل أن أدفع.",
       "checkout.inquiry": "مرحبًا {store}، لدي سؤال عن مجموعتكم.", "category.all": "الكل", "category.flowers": "زهور", "category.grapes": "عنب",
       "tag.favorite": "مفضل", "tag.bestSeller": "الأكثر مبيعًا", "tag.potted": "نبات في أصيص", "tag.newHarvest": "حصاد جديد",
-      "product.add": "أضف {name} إلى السلة", "product.decrease": "قلل {name}", "product.increase": "أضف {name}",
+      "product.add": "أضف {name} إلى السلة", "product.previewAdd": "أضف إلى السلة", "product.previewClose": "أغلق معاينة المنتج", "product.previewOpen": "عرض تفاصيل {name}", "product.decrease": "قلل {name}", "product.increase": "أضف {name}",
       "added": "تمت إضافة {name} إلى السلة"
     }
   };
@@ -209,6 +209,15 @@
   const productGrid = document.querySelector("#product-grid");
   const filters = document.querySelector("#category-filters");
   const searchInput = document.querySelector("#search-input");
+  const productPreviewOverlay = document.querySelector("#product-preview-overlay");
+  const productPreviewImage = document.querySelector("#product-preview-image");
+  const productPreviewTag = document.querySelector("#product-preview-tag");
+  const productPreviewCategory = document.querySelector("#product-preview-category");
+  const productPreviewTitle = document.querySelector("#product-preview-title");
+  const productPreviewPrice = document.querySelector("#product-preview-price");
+  const productPreviewDescription = document.querySelector("#product-preview-description");
+  let previewProductId = "";
+  let previewOpener = null;
   const cartOverlay = document.querySelector("#cart-overlay");
   const deliveryAddressInput = document.querySelector("#delivery-address");
   const shippingSelect = document.querySelector("#shipping-select");
@@ -396,6 +405,40 @@
     return t(categoryKeys[category] || category);
   }
 
+  function openProductPreview(productId, opener) {
+    const rawProduct = products.find((product) => product.id === productId);
+    if (!rawProduct) return;
+    const product = localizeProduct(rawProduct);
+    const tagKeys = { FAVORIT: "tag.favorite", "BEST SELLER": "tag.bestSeller", "TANAMAN POT": "tag.potted", "PANEN BARU": "tag.newHarvest" };
+
+    previewProductId = productId;
+    previewOpener = opener;
+    productPreviewImage.src = product.image;
+    productPreviewImage.alt = product.name;
+    productPreviewCategory.textContent = categoryLabel(product.category);
+    productPreviewTitle.textContent = product.name;
+    productPreviewPrice.textContent = formatPrice(product.price);
+    productPreviewDescription.textContent = product.description;
+    productPreviewTag.hidden = !product.tag;
+    productPreviewTag.textContent = tagKeys[product.tag] ? t(tagKeys[product.tag]) : product.tag;
+    productPreviewOverlay.hidden = false;
+    document.body.classList.add("product-preview-open");
+    document.querySelector("#close-product-preview").focus();
+  }
+
+  function closeProductPreview() {
+    if (productPreviewOverlay.hidden) return;
+    productPreviewOverlay.hidden = true;
+    document.body.classList.remove("product-preview-open");
+    previewProductId = "";
+    if (previewOpener?.isConnected) previewOpener.focus();
+    previewOpener = null;
+  }
+
+  function refreshProductPreview() {
+    if (previewProductId) openProductPreview(previewProductId, previewOpener);
+  }
+
   function renderProducts() {
     const query = searchInput.value.trim().toLocaleLowerCase();
     const visibleProducts = products.filter((product) => {
@@ -412,7 +455,7 @@
         const product = localizeProduct(rawProduct);
         const tagKeys = { FAVORIT: "tag.favorite", "BEST SELLER": "tag.bestSeller", "TANAMAN POT": "tag.potted", "PANEN BARU": "tag.newHarvest" };
         return `
-          <article class="product-card" style="--card-order:${index}">
+          <article class="product-card" style="--card-order:${index}" data-preview="${escapeHtml(rawProduct.id)}" tabindex="0" role="button" aria-label="${escapeHtml(t("product.previewOpen", { name: product.name }))}">
             <div class="product-image-wrap">
               <img class="product-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />
               ${product.tag ? `<span class="product-tag">${escapeHtml(tagKeys[product.tag] ? t(tagKeys[product.tag]) : product.tag)}</span>` : ""}
@@ -564,6 +607,24 @@
     document.querySelectorAll("[data-i18n-alt]").forEach((element) => {
       element.alt = t(element.dataset.i18nAlt);
     });
+    const storeBio = String(config.bio || "").trim();
+    const storeCaption = String(config.caption || "").trim();
+    if (storeBio) document.querySelector('[data-i18n="story.description"]').textContent = storeBio;
+    if (storeCaption) document.querySelector(".hero-note [data-i18n]").textContent = storeCaption;
+    const heroText = {
+      eyebrow: ".hero-copy .eyebrow [data-i18n]",
+      titleFirst: "#hero-title [data-i18n='hero.titleFirst']",
+      titleSecond: "#hero-title [data-i18n='hero.titleSecond']",
+      titleEmphasis: "#hero-title [data-i18n='hero.titleEmphasis']",
+      description: ".hero-description",
+      note: ".hero-note [data-i18n]",
+      caption: ".hero-caption [data-i18n='hero.caption']",
+    };
+    for (const [key, selector] of Object.entries(heroText)) {
+      const value = String(config.hero?.[key] || "").trim();
+      const element = document.querySelector(selector);
+      if (value && element) element.textContent = value;
+    }
     document.querySelectorAll(".brand").forEach((brand) => {
       brand.setAttribute("aria-label", `${storeName} — ${t("brand.home")}`);
     });
@@ -575,6 +636,7 @@
 
     renderFilters();
     renderProducts();
+    refreshProductPreview();
     populateDeliveryOptions();
     renderCart();
     renderPaymentInfo();
@@ -661,7 +723,27 @@
   });
   productGrid.addEventListener("click", (event) => {
     const button = event.target.closest("[data-add]");
-    if (button) addToCart(button.dataset.add);
+    if (button) {
+      addToCart(button.dataset.add);
+      return;
+    }
+    const card = event.target.closest("[data-preview]");
+    if (card) openProductPreview(card.dataset.preview, card);
+  });
+  productGrid.addEventListener("keydown", (event) => {
+    const card = event.target.closest("[data-preview]");
+    if (!card || event.target.closest("button")) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openProductPreview(card.dataset.preview, card);
+    }
+  });
+  document.querySelector("#close-product-preview").addEventListener("click", closeProductPreview);
+  document.querySelector("#close-product-preview-backdrop").addEventListener("click", closeProductPreview);
+  document.querySelector("#product-preview-add").addEventListener("click", () => {
+    if (!previewProductId) return;
+    addToCart(previewProductId);
+    closeProductPreview();
   });
 
   document.querySelector("#cart-items").addEventListener("click", (event) => {
@@ -733,7 +815,23 @@
   });
 
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !productPreviewOverlay.hidden) {
+      closeProductPreview();
+      return;
+    }
     if (event.key === "Escape" && !cartOverlay.hidden) setCartOpen(false);
+    if (event.key === "Tab" && !productPreviewOverlay.hidden) {
+      const focusable = [...productPreviewOverlay.querySelectorAll(".product-preview-dialog button:not([disabled])")];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   applyLanguage();
