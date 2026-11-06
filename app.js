@@ -1,6 +1,10 @@
 (() => {
-  const products = window.PRODUCTS ?? [];
-  const config = window.STORE_CONFIG ?? {};
+  const storeData = window.StoreData ? window.StoreData.load() : {
+    products: window.PRODUCTS ?? [],
+    config: window.STORE_CONFIG ?? {},
+  };
+  const products = storeData.products;
+  const config = storeData.config;
   const storeName = config.name || "rahmanflower";
   const cart = new Map();
   let activeCategory = "Semua";

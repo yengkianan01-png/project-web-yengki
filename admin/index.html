@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1960C5" />
+    <title>Admin toko — rahmanflower</title>
+    <link rel="stylesheet" href="admin.css" />
+    <script src="../products.js" defer></script>
+    <script src="../store-data.js" defer></script>
+    <script src="admin.js" defer></script>
+  </head>
+  <body>
+    <div class="admin-layout">
+      <aside class="sidebar">
+        <a class="brand" href="../index.html"><span class="brand-mark">rf.</span><span>rahmanflower</span></a>
+        <nav class="sidebar-nav" aria-label="Navigasi admin">
+          <a class="sidebar-link" href="#overview"><span class="sidebar-icon" aria-hidden="true">◉</span>Dashboard</a>
+          <a class="sidebar-link active" href="#products" aria-current="location"><span class="sidebar-icon" aria-hidden="true">▦</span>Produk</a>
+          <a class="sidebar-link" href="#orders-info"><span class="sidebar-icon" aria-hidden="true">▣</span>Pesanan</a>
+          <a class="sidebar-link" href="#store-settings"><span class="sidebar-icon" aria-hidden="true">⚙</span>Pengaturan</a>
+        </nav>
+        <a class="sidebar-store-link" href="../index.html" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">↗</span>Lihat Toko</a>
+      </aside>
+
+      <main class="dashboard">
+      <header class="topbar">
+        <span class="admin-badge"><span aria-hidden="true">✦</span> Admin</span>
+        <div class="heading-actions">
+          <button class="button button-light" id="export-data" type="button">Ekspor data</button>
+          <button class="button button-light" id="import-data" type="button">Impor data</button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden />
+          <a class="store-preview-button" href="../index.html" target="_blank" rel="noopener noreferrer" aria-label="Buka pratinjau etalase di tab baru">Lihat Etalase <span aria-hidden="true">↗</span></a>
+        </div>
+      </header>
+
+      <aside class="notice notice-info">
+        <strong>Penyimpanan browser</strong>
+        <span>Perubahan tersimpan di browser/perangkat ini saja, belum otomatis mengubah situs untuk pengunjung lain. Ekspor data untuk menyimpan salinan atau memindahkannya.</span>
+      </aside>
+      <div class="notice notice-status" id="status-message" role="status" aria-live="polite" hidden></div>
+
+      <form id="store-form">
+        <section class="product-management" id="products">
+          <div class="panel-heading product-heading">
+            <div id="overview"><h1>Manajemen Produk</h1><p class="panel-help">Tambah, edit, dan hapus produk toko</p></div>
+            <button class="button button-primary" id="add-product" type="button">＋ Tambah Produk</button>
+          </div>
+          <div class="product-browser">
+            <div class="product-toolbar">
+              <label class="search-control"><span class="sr-only">Cari produk</span><input id="product-search" type="search" placeholder="Cari produk..." /></label>
+              <label class="category-control"><span class="sr-only">Filter kategori</span><select id="category-filter"><option value="">Semua Kategori</option></select></label>
+            </div>
+            <div class="table-wrap">
+              <table class="product-table">
+                <thead><tr><th>Foto</th><th>Nama Produk</th><th>Kategori</th><th>Harga</th><th>Badge</th><th>Aksi</th></tr></thead>
+                <tbody id="product-list"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="orders-info">
+          <div class="panel-heading"><div><p class="eyebrow">PESANAN</p><h2>Pesanan pelanggan</h2><p class="panel-help">Pesanan saat ini dikirim langsung ke WhatsApp dan belum tersimpan di panel admin.</p></div></div>
+        </section>
+
+        <section class="panel" id="store-settings">
+          <div class="panel-heading"><div><p class="eyebrow">IDENTITAS & KONTAK</p><h2>Pengaturan toko</h2></div></div>
+          <div class="form-grid">
+            <label>Nama toko<input name="name" data-setting="name" required maxlength="80" /></label>
+            <label>WhatsApp (format internasional)<input name="whatsappPhone" data-setting="whatsappPhone" inputmode="tel" placeholder="6281234567890" /></label>
+            <label>Email<input name="email" data-setting="email" type="email" /></label>
+            <label class="field-wide">Alamat / lokasi toko<input name="mapLocation" data-setting="mapLocation" /></label>
+            <label>Instagram<input name="instagram" data-setting="socialUrls.instagram" type="url" placeholder="https://" /></label>
+            <label>TikTok<input name="tiktok" data-setting="socialUrls.tiktok" type="url" placeholder="https://" /></label>
+            <label>Facebook<input name="facebook" data-setting="socialUrls.facebook" type="url" placeholder="https://" /></label>
+          </div>
+        </section>
+
+        <section class="panel" id="payment-settings">
+          <div class="panel-heading"><div><p class="eyebrow">PEMBAYARAN</p><h2>Informasi pembayaran</h2></div></div>
+          <div class="form-grid">
+            <label>Nama bank<input name="bankName" data-setting="payment.bankName" /></label>
+            <label>Nama pemilik rekening<input name="bankAccountName" data-setting="payment.bankAccountName" /></label>
+            <label>Nomor rekening<input name="bankAccountNumber" data-setting="payment.bankAccountNumber" inputmode="numeric" /></label>
+            <label>URL gambar QRIS<input name="qrisImageUrl" data-setting="payment.qrisImageUrl" type="url" placeholder="https://" /></label>
+          </div>
+        </section>
+
+        <div class="save-bar">
+          <span>Perubahan berlaku setelah disimpan dan etalase dimuat ulang.</span>
+          <button class="button button-primary" type="submit">Simpan perubahan</button>
+        </div>
+      </form>
+
+      <section class="reset-section">
+        <div><h2>Kembalikan data awal</h2><p>Menghapus perubahan tersimpan di browser ini dan memakai data bawaan proyek.</p></div>
+        <button class="button button-danger" id="reset-data" type="button">Reset ke data awal</button>
+      </section>
+    </main>
+    </div>
+  </body>
+</html>

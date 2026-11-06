@@ -4,6 +4,10 @@ Website katalog bunga dan anggur berbahasa Indonesia dengan tema lembut. Buka `i
 
 Pemilih bahasa di kanan atas menyediakan Bahasa Indonesia, English, dan العربية. Pilihan bahasa menerjemahkan antarmuka, katalog, keranjang, serta pesan checkout; bahasa Arab mengaktifkan tata letak kanan-ke-kiri.
 
+## Halaman admin
+
+Buka `/admin/` pada alamat situs untuk mengelola produk dan pengaturan toko. Daftar produk menyediakan pencarian, filter kategori, serta aksi edit dan hapus. Foto produk dapat diunggah dalam format gambar yang didukung browser dan akan dioptimalkan menjadi JPEG. Foto RAW kamera biasanya perlu dikonversi ke JPG atau PNG terlebih dahulu karena browser tidak dapat menampilkannya langsung. Pada saat ini perubahan disimpan di penyimpanan browser (localStorage), sehingga hanya berlaku pada browser/perangkat yang digunakan dan tidak otomatis mengubah data bagi pengunjung lain. Gunakan ekspor/impor JSON untuk memindahkan data. Agar perubahan admin langsung berlaku bagi semua pengunjung, situs memerlukan backend/API dan autentikasi admin; halaman statis ini belum menyediakannya.
+
 ## Mengubah katalog dan pengaturan toko
 
 Buka `products.js`:
