@@ -19,10 +19,10 @@
   const heroNextButton = document.querySelector("[data-hero-next]");
   const heroAutoplayToggle = document.querySelector("[data-hero-autoplay]");
   const defaultHeroSlides = [
-    "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=2000&q=85",
-    "https://images.unsplash.com/photo-1494972308805-463bc619d34e?auto=format&fit=crop&w=2000&q=85",
-    "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=2000&q=85",
-    "https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=2000&q=85",
+    "assets/hero-slide-1.jpg",
+    "assets/hero-slide-2.jpg",
+    "assets/hero-slide-3.jpg",
+    "assets/hero-slide-4.jpg",
   ];
   let currentLanguage = "id";
   let activeHeroSlide = 0;
@@ -342,6 +342,11 @@
     urls.forEach((url, index) => {
       const image = document.createElement("img");
       image.className = "hero-slide";
+      image.addEventListener("error", () => {
+        if (image.dataset.fallbackAttempted) return;
+        image.dataset.fallbackAttempted = "true";
+        image.src = defaultHeroSlides[index % defaultHeroSlides.length];
+      });
       image.src = url;
       image.alt = "";
       image.decoding = "async";
